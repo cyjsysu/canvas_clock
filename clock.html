@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Clock</title>
+    <style>
+        #clockFrame {
+            width: 500px;
+            height: 500px;
+            margin: 0 auto;
+
+        }
+
+    </style>
+    <script>
+        window.onload = function () {
+            drawClock();
+        };
+
+        function drawClock() {
+            var canvas = document.getElementById('clock');
+            var ctx = canvas.getContext("2d");
+
+            requestAnimationFrame(function step() {
+                drawDial(ctx);  //画钟盘
+                drawAllHands(ctx);  //画指针
+                drawShaft(ctx);  //画针轴
+
+                requestAnimationFrame(step);
+            });
+        }
+
+        /*
+        函数：drawAllHands
+        功能：画出时分秒三根指针
+        参数：ctx: getContext("2d") 对象
+         */
+        function drawAllHands(ctx) {
+            let time = new Date();
+
+            let h = time.getHours();
+            let m = time.getMinutes();
+            let s = time.getSeconds();
+
+            // 计算3根指针的旋转角度
+            let secondAngle = Math.PI / 30 * s;
+            let minuteAngle = Math.PI / 30 * m + secondAngle / 60;
+            let hourAngle = Math.PI / 6 * h + minuteAngle / 12;
+
+            drawHand(ctx, hourAngle, 100, 10, 8, "black");
+            drawHand(ctx, minuteAngle, 150, 10, 6, "black");
+            drawHand(ctx, secondAngle, 180, 20, 2, "red");
+        }
+
+        /*
+        函数：drawShaft
+        功能：画钟表中间的转轴
+        参数：ctx: getContext("2d") 对象
+         */
+        function drawShaft(ctx) {
+            ctx.save();
+
+            ctx.fillStyle = "rgb(80, 80, 80)";
+            ctx.beginPath();
+            ctx.arc(250, 250, 6, 0, 2 * Math.PI, false);
+            ctx.fill();
+
+            ctx.fillStyle = "rgb(180, 180, 180)";
+            ctx.beginPath();
+            ctx.arc(250, 250, 4, 0, 2 * Math.PI, false);
+            ctx.fill();
+
+            ctx.fillStyle = "rgb(0, 0, 0)";
+            ctx.beginPath();
+            ctx.arc(250, 250, 2, 0, 2 * Math.PI, false);
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        /*
+        函数：drawHand
+        功能：画一根指针
+        参数：ctx: getContext("2d") 对象; angle: 指针角度; len: 指针长度; tailLen: 指针尾部长度;
+              width: 指针宽度; color: 指针颜色
+         */
+        function drawHand(ctx, angle, len, tailLen, width, color) {
+            ctx.save();
+
+            ctx.translate(250, 250);
+            ctx.rotate(-Math.PI / 2 + angle);
+
+            ctx.lineWidth = width;
+            ctx.strokeStyle = color;
+            ctx.lineCap = "round";
+
+            ctx.beginPath();
+            ctx.moveTo(-tailLen, 0);
+            ctx.lineTo(len, 0);
+            ctx.stroke();
+            ctx.closePath();
+
+            ctx.restore();
+        }
+
+        /*
+        函数：drawDial
+        功能：画出表盘
+        参数：ctx: getContext("2d") 对象;
+         */
+        function drawDial(ctx) {
+            //console.log("TT");
+            ctx.clearRect(0, 0, 500, 500); //清除所有内容
+            ctx.save();
+
+            ctx.strokeStyle = "black";
+            ctx.translate(250, 250); //一定坐标原点到原来的中心
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            ctx.arc(0, 0, 240, 0, 2 * Math.PI); //绘制圆周
+            ctx.stroke();
+            ctx.closePath();
+            // 画刻度
+            for (let i = 0; i < 60; i++) {//绘制刻度。
+                ctx.save();
+                ctx.rotate(-Math.PI / 2 + i * Math.PI / 30);  //旋转坐标轴。坐标轴x的正方形从 向上开始算起
+                ctx.beginPath();
+                var startX = i % 5 ? 210 : 200;
+                ctx.moveTo(startX, 0);
+                ctx.lineTo(230, 0);
+                ctx.lineWidth = i % 5 ? 2 : 4;
+                //ctx.strokeStyle = i % 5 ? "blue" : "red";
+                ctx.stroke();
+                ctx.closePath();
+
+                ctx.restore();
+            }
+
+            //画数字
+            for (var i = 1; i <= 12; i++) {
+                ctx.save();
+
+                var deg = -Math.PI / 2 + i * Math.PI / 6;
+                ctx.font = '40px Microsoft Yahei';
+                ctx.fillStyle = "black";
+
+                var x = 170 * Math.cos(deg) - 10;
+                if (i > 9)
+                    x -= 12;
+                var y = 170 * Math.sin(deg) + 18;
+
+                ctx.fillText(i, x, y);
+
+                ctx.restore();
+            }
+            ctx.restore(); //把原点恢复到右上角
+        }
+
+
+        function radianToDegree(radian) {
+            return radian / Math.PI * 180;
+        }
+
+        function degreeToRadian(degree) {
+            return degree / 180 * Math.PI;
+        }
+    </script>
+</head>
+<body>
+<div id="clockFrame">
+    <canvas id="clock" width="500" height="500">你的浏览器不支持 canvas，请升级你的浏览器。</canvas>
+</div>
+</body>
+</html>
