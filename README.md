@@ -1,3 +1,3 @@
 # canvas_clock
 ---
-![clock]("./img/clock.png")
+![clock](./img/clock.png)
